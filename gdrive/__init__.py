@@ -24,12 +24,15 @@ class Credentials:
 
         if os.path.exists('token.json'):
             self.__creds = GoogleCredentials.from_authorized_user_file('token.json', self.SCOPES)
+        else:
+            print('token.json does not exist, creating them')
 
         # If there are no (valid) credentials available, let the user log in.
         if not self.__creds or not self.__creds.valid:
-            if self.__creds and self.__creds.expired and self.__creds.refresh_token:
+            if self.__creds and self.__creds.expired and self.__creds.refresh_token:                
+                print("we need to refresh our request")
                 self.__creds.refresh(Request())
-            else:
+            else:                
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'credentials.json', self.SCOPES)
                 self.__creds = flow.run_local_server(port=0)
