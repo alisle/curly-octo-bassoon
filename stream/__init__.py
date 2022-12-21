@@ -16,7 +16,7 @@ class StreamName(str, Enum):
     NEW_ENTITY : str = "new_entity"
 
 class Stream:   
-    stream_name = "new_entity"
+    new_entity_stream_name = "new_entity"
     region = 'us-east-1'
     aws_profile = 'kinesis-entity-consumer' 
     partition_key = str(uuid.uuid1())
@@ -54,7 +54,8 @@ class Stream:
     def put_record(self, stream_name : StreamName, data : str):
         if self.get_status(stream_name) == "ACTIVE":
             """put a single record to the stream"""
-            self.kinesis.put_record(stream_name, data, self.partition_key)
+            response = self.kinesis.put_record(stream_name, data, self.partition_key)
+            pprint(response)
         else:
             print(f"Unable to post to kinesis {self.get_status()}")
         

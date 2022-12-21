@@ -1,5 +1,8 @@
 from enum import Enum
+from typing import List
+
 import json
+
 
 class DocumentGroupType(str, Enum):
     SENTENCE : str = "Sentence"
@@ -11,6 +14,20 @@ class DocumentType(str, Enum):
     def __str__(self) -> str:
         return self.name
 
+class DocumentUser:
+    def __init__(self, display_name: str, email_address: str) -> None:
+        self.display_name = display_name
+        self.email_address = email_address
+
+class DocumentDetails:
+    def __init__(self, document_name : str, document_owner: List[DocumentUser], document_id: str, shared: bool, shared_by : DocumentUser , last_modified: str) -> None:
+        self.document_name = document_name
+        self.document_owner = document_owner
+        self.document_id = document_id
+        self.last_modifed = last_modified
+        self.shared = shared
+        self.shared_by = shared_by
+        
     
 
 class EntityType(str, Enum):
