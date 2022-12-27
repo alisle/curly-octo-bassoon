@@ -12,10 +12,32 @@ from model import Entity
 
 import uuid
 
-class StreamName(str, Enum):
-    NEW_ENTITY : str = "new_entity"
+from kafka import KafkaProducer, KafkaConsumer
+import json
 
-class Stream:   
+
+
+class StreamName(str, Enum):
+    NEW_ENTITY : str = "new-entity"
+    NEW_DOCUMENT : str = "new-document"
+    NEW_USERR : str = "new-user"
+
+class KafkaStream:
+    server = 'localhost:19092'
+
+    producer = KafkaProducer(bootstrap_servers=[server])
+
+    def create_consumer(self, stream_name : StreamName):
+        return KafkaConsumer(stream_name.value, bootstrap_servers=[self.server])
+
+    def put_record(self, stream_name : StreamName, data: str):
+        self.producer.send(stream_name.value, data)
+
+
+    def flush(self):
+        self.producer.flush()
+
+class KinesisStream:   
     new_entity_stream_name = "new_entity"
     region = 'us-east-1'
     aws_profile = 'kinesis-entity-consumer' 

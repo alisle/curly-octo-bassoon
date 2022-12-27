@@ -11,6 +11,7 @@ google-auth-oauthlib = "*"
 awscli = "*"
 pytest = "*"
 boto = "*"
+kafka-python = "*"
 
 [dev-packages]
 pylint = "*"
