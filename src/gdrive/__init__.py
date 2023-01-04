@@ -10,6 +10,8 @@ from model import DocumentDetails, DocumentUser
 from typing import List
 from pprint import pprint
 
+import logging
+
 class Credentials:
     SCOPES = [
         'https://www.googleapis.com/auth/documents.readonly',
@@ -28,12 +30,12 @@ class Credentials:
         if os.path.exists('token.json'):
             self.__creds = GoogleCredentials.from_authorized_user_file('token.json', self.SCOPES)
         else:
-            print('token.json does not exist, creating them')
+            logging.info('token.json does not exist, creating them')
 
         # If there are no (valid) credentials available, let the user log in.
         if not self.__creds or not self.__creds.valid:
             if self.__creds and self.__creds.expired and self.__creds.refresh_token:                
-                print("we need to refresh our request")
+                logging.error("we need to refresh our request")
                 self.__creds.refresh(Request())
             else:                
                 flow = InstalledAppFlow.from_client_secrets_file(
@@ -165,9 +167,8 @@ class Drive:
     def __process_files(self, files) -> List[DocumentDetails]:
         documents = []
         for file in files:
-            print("Processing new file")
+            logging.info("Processing new file")
 
-            pprint(file)
             owners = self.__create_users(file['owners']) 
             id = file['id']
             modified_time = file['modifiedTime']
@@ -196,7 +197,6 @@ class Drive:
             token = None
             
             while True:
-                print("Loop")
                 results = service.files().list(
                     pageSize=1000, pageToken=token, fields="nextPageToken, files(id, name, owners, shared, sharingUser, modifiedTime)").execute()
                 
@@ -210,7 +210,7 @@ class Drive:
 
             
         except HttpError as error:
-            print(f'An error occurred: {error}')
+            logging.ERROR(f'An error occurred: {error}')
             return None
 
 class Document:

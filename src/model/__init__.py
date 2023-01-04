@@ -5,7 +5,7 @@ import json
 
 class ModelMessage: 
     def to_json(self):
-        return json.dumps(self, default= lambda o: o.__dict__, sort_key=True, indent=4)
+        return json.dumps(self, default= lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
 class DocumentGroupType(str, Enum):
@@ -48,9 +48,6 @@ class Entity(ModelMessage):
 
     def __str__(self):
         return f"DT: {self.document_type}, DID: {self.document_id}, ET: {self.entity_type}, EV: {self.entity_value}"
-    
-    def to_json(self):
-        return json.dumps(self, default= lambda o: o.__dict__, sort_keys=True, indent=4)
-        
+            
 
 

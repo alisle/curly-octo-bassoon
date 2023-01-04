@@ -1,15 +1,12 @@
 from __future__ import print_function
-from pprint import pprint
 import os
-import uu
 import boto
 from boto.kinesis.exceptions import ResourceInUseException
 
 from enum import Enum
 
-from numpy import partition
-from model import Entity
-
+from model import Entity, DocumentUser, DocumentDetails
+import logging
 import uuid
 
 from kafka import KafkaProducer, KafkaConsumer
@@ -20,7 +17,7 @@ import json
 class StreamName(str, Enum):
     NEW_ENTITY : str = "new-entity"
     NEW_DOCUMENT : str = "new-document"
-    NEW_USERR : str = "new-user"
+    NEW_USER : str = "new-user"
 
 class KafkaStream:
     server = 'localhost:19092'
@@ -31,11 +28,28 @@ class KafkaStream:
         return KafkaConsumer(stream_name.value, bootstrap_servers=[self.server])
 
     def put_record(self, stream_name : StreamName, data: str):
-        self.producer.send(stream_name.value, data)
+        self.producer.send(stream_name.value, data.encode('utf-8'))
 
 
     def flush(self):
         self.producer.flush()
+
+    def post_entity(self, entity: Entity):
+        logging.info(f"Posting Entity: {entity}")
+        json_str : str = entity.to_json()
+        self.put_record(StreamName.NEW_ENTITY, json_str)
+
+    def post_user(self, user: DocumentUser):
+        logging.info("Posting User: {user}")
+        json_str : str = user.to_json()
+        self.put_record(StreamName.NEW_USER, json_str)
+
+    def post_document(self, doc: DocumentDetails):
+        logging.info("Posting DocumentDetails: {doc}")
+        json_str : str = doc.to_json()
+        self.put_record(StreamName.NEW_DOCUMENT, json_str)
+    
+
 
 class KinesisStream:   
     new_entity_stream_name = "new_entity"
@@ -68,22 +82,21 @@ class KinesisStream:
         try:
             # create the stream
             self.kinesis.create_stream(stream_name, 1)
-            print('stream {} created in region {}'.format(stream_name, self.region))
+            logging.info('stream {} created in region {}'.format(stream_name, self.region))
         except ResourceInUseException:
-            print('stream {} already exists in region {}'.format(stream_name, self.region))
+            logging.info('stream {} already exists in region {}'.format(stream_name, self.region))
     
 
     def put_record(self, stream_name : StreamName, data : str):
         if self.get_status(stream_name) == "ACTIVE":
             """put a single record to the stream"""
             response = self.kinesis.put_record(stream_name, data, self.partition_key)
-            pprint(response)
         else:
-            print(f"Unable to post to kinesis {self.get_status()}")
+            logging.error(f"Unable to post to kinesis {self.get_status()}")
         
 
     def post_entity(self, entity: Entity):
-        print(f"ENTITY POSTING: {entity}")
+        logging.info(f"ENTITY POSTING: {entity}")
         json_str : str = entity.to_json()
         self.put_record(StreamName.NEW_ENTITY, json_str)
 
@@ -95,14 +108,13 @@ class KinesisStream:
 
     def create_iterator(self, stream_name : str):
         shard = self.get_shard(stream_name)
-        print(f"Creating iterator for stream {stream_name}:{shard}")
+        logging.info(f"Creating iterator for stream {stream_name}:{shard}")
 
         response = self.kinesis.get_shard_iterator(
             stream_name=stream_name,
             shard_id=shard,
             shard_iterator_type='TRIM_HORIZON'
         )
-        pprint(response)
         return response.get('ShardIterator')
 
 
