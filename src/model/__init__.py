@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import List
-
+from pprint import pprint
 import json
 
 class ModelMessage: 
@@ -22,6 +22,13 @@ class DocumentUser(ModelMessage):
     def __init__(self, display_name: str, email_address: str) -> None:
         self.display_name = display_name
         self.email_address = email_address
+
+    def _decoder(modelDict : dict): 
+        return DocumentUser(modelDict['display_name'], modelDict['email_address'])
+    
+    def from_json(raw : bytes):
+        return json.loads(raw.decode('utf-8'), object_hook=DocumentUser._decoder)
+        
 
 class DocumentDetails(ModelMessage):
     def __init__(self, document_name : str, document_owners: List[DocumentUser], document_id: str, shared: bool, shared_by : DocumentUser , last_modified: str) -> None:

@@ -12,10 +12,7 @@ services:
     image: confluentinc/cp-kafka:7.3.0
     container_name: broker
     ports:
-    # To learn about configuring Kafka for access across networks see
-    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - "19092:19092" 
-      # - "9092:9092"      
     depends_on:
       - zookeeper
     environment:
@@ -44,3 +41,11 @@ services:
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker:9092 --list
       "
+  tinkerpop:
+    image: tinkerpop/gremlin-server
+    container_name: tinkerpop
+    ports:
+      - "8182:8182"
+    depends_on:
+      - broker
+    

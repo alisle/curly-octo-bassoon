@@ -13,6 +13,7 @@ pytest = "*"
 boto = "*"
 kafka-python = "*"
 hubspot-api-client = "*"
+gremlinpython = "*"
 
 [dev-packages]
 pylint = "*"
