@@ -12,6 +12,7 @@ awscli = "*"
 pytest = "*"
 boto = "*"
 kafka-python = "*"
+hubspot-api-client = "*"
 
 [dev-packages]
 pylint = "*"
