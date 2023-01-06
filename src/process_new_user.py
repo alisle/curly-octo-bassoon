@@ -1,6 +1,6 @@
 from stream import KafkaStream, StreamName
 from pprint import pprint
-from model import DocumentUser
+from model import Human
 import logging
 from pprint import pprint
 
@@ -17,7 +17,7 @@ def main():
             message.offset, message.key,
             message.value))
         
-        user = DocumentUser.from_json(message.value)
+        user = Human.from_json(message.value)
         pprint(user.display_name)
         pprint(user.email_address)
 

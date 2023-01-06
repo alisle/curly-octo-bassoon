@@ -14,6 +14,7 @@ boto = "*"
 kafka-python = "*"
 hubspot-api-client = "*"
 gremlinpython = "*"
+dataclasses-json = "*"
 
 [dev-packages]
 pylint = "*"

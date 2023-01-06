@@ -6,7 +6,7 @@ import spacy
 import google_drive
 
 from pprint import pprint
-from model import EntityType, DocumentType, Entity
+from model import EntityType, DocumentType, DocumentEntity
 from stream import KafkaStream
 
 
@@ -28,7 +28,7 @@ def main():
     drive_document_service = google_drive.Document(creds)
 
     documents = drive.list()
-    
+
 
     
     logging.info("Processing Documents") 
@@ -41,12 +41,12 @@ def main():
             persons = set([entity.text for entity in processed_text.ents if entity.label_ == "PERSON" ])
 
             for org in orgs: 
-                entity = Entity(doc, EntityType.ID, org)
+                entity = DocumentEntity(doc, EntityType.ID, org)
                 stream.post_entity(entity)
                 
 
             for person in persons:
-                entity = Entity(doc, EntityType.ID, person)
+                entity = DocumentEntity(doc, EntityType.ID, person)
                 stream.post_entity(entity)
 
 

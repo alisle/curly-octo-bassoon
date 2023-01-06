@@ -3,7 +3,7 @@ import os.path
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from model import DocumentDetails, DocumentUser, DocumentType
+from model import DocumentDetails, Human, DocumentType
 from typing import List
 from pprint import pprint
 
@@ -114,10 +114,10 @@ class Drive:
 
         self.__credentials = credentials
 
-    def __create_user(self, user : dict) -> DocumentUser:
-        return DocumentUser(user['displayName'], user['emailAddress'])
+    def __create_user(self, user : dict) -> Human:
+        return Human(user['displayName'], user['emailAddress'])
 
-    def __create_users(self, users: List[dict]) -> List[DocumentUser]:
+    def __create_users(self, users: List[dict]) -> List[Human]:
         return [self.__create_user(user) for user in users]
 
     def __process_files(self, files) -> List[DocumentDetails]:

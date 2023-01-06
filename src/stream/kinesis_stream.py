@@ -3,7 +3,7 @@ from boto.kinesis.exceptions import ResourceInUseException
 import os
 import uuid
 from .stream_name import StreamName
-from model import Entity
+from model import DocumentEntity
 
 class KinesisStream:   
     new_entity_stream_name = "new_entity"
@@ -49,7 +49,7 @@ class KinesisStream:
             logging.error(f"Unable to post to kinesis {self.get_status()}")
         
 
-    def post_entity(self, entity: Entity):
+    def post_entity(self, entity: DocumentEntity):
         logging.info(f"ENTITY POSTING: {entity}")
         json_str : str = entity.to_json()
         self.put_record(StreamName.NEW_ENTITY, json_str)
