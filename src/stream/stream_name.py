@@ -1,8 +1,10 @@
 from enum import Enum
 
 class StreamName(str, Enum):
-    NEW_ENTITY : str = "new-entity"
+    NEW_ENTITY : str = "new-document-entity"
     NEW_DOCUMENT : str = "new-document"
-    NEW_USER : str = "new-user"
+    NEW_API_HUMAN : str = "new-api-human"  
+    NEW_API_ENTIY : str = "new-api-entity"    
+    
 
     

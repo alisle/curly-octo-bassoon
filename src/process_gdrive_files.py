@@ -6,7 +6,7 @@ import spacy
 import google_drive
 
 from pprint import pprint
-from model import EntityType, DocumentType, DocumentEntity
+from model import EntityType, DocumentType, DocumentEntity, APIType, APIHumanEntity, APIDetails
 from stream import KafkaStream
 
 
@@ -29,11 +29,16 @@ def main():
 
     documents = drive.list()
 
-
-    
     logging.info("Processing Documents") 
+
+    api_details = APIDetails(APIType.GOOGLE)
     for doc in documents:
         try:                
+
+            for human in doc.document_owners:
+                stream.post_api_human_entity(APIHumanEntity(api_details, human))
+
+
             raw_text = drive_document_service.read(doc.document_id)            
             processed_text = nlp(raw_text)            
             
@@ -42,12 +47,12 @@ def main():
 
             for org in orgs: 
                 entity = DocumentEntity(doc, EntityType.ID, org)
-                stream.post_entity(entity)
+                stream.post_document_entity(entity)
                 
 
             for person in persons:
                 entity = DocumentEntity(doc, EntityType.ID, person)
-                stream.post_entity(entity)
+                stream.post_document_entity(entity)
 
 
         except HttpError as error:
