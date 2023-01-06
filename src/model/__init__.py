@@ -31,7 +31,8 @@ class DocumentUser(ModelMessage):
         
 
 class DocumentDetails(ModelMessage):
-    def __init__(self, document_name : str, document_owners: List[DocumentUser], document_id: str, shared: bool, shared_by : DocumentUser , last_modified: str) -> None:
+    def __init__(self, document_type : DocumentType, document_name : str, document_owners: List[DocumentUser], document_id: str, shared: bool, shared_by : DocumentUser , last_modified: str) -> None:
+        self.document_type = document_type
         self.document_name = document_name
         self.document_owners = document_owners
         self.document_id = document_id
@@ -45,16 +46,15 @@ class EntityType(str, Enum):
     ID : str = "ID"
 
 class Entity(ModelMessage):
-    def __init__(self, document_type : DocumentType, document_id: str, entity_type: EntityType, entity_value: str) -> None:
-        self.document_type = document_type
-        self.document_id = document_id
+    def __init__(self, document_details: DocumentDetails, entity_type: EntityType, entity_value: str) -> None:
+        self.document_details = document_details
         self.entity_type = entity_type
         self.entity_value = entity_value
 
                 
 
     def __str__(self):
-        return f"DT: {self.document_type}, DID: {self.document_id}, ET: {self.entity_type}, EV: {self.entity_value}"
+        return f"DT: {self.document_details.document_type}, DID: {self.document_details.document_id}, ET: {self.entity_type}, EV: {self.entity_value}"
             
 
 

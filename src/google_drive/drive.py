@@ -1,58 +1,14 @@
 import os.path
 
-from google.oauth2.credentials import Credentials as GoogleCredentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from model import DocumentDetails, DocumentUser
+from model import DocumentDetails, DocumentUser, DocumentType
 from typing import List
 from pprint import pprint
 
 import logging
 
-class Credentials:
-    SCOPES = [
-        'https://www.googleapis.com/auth/documents.readonly',
-        'https://www.googleapis.com/auth/drive.metadata.readonly'
-        ]
-
-    __creds = None
-    
-
-    def __init__(self) -> None:
-        pass
-
-    def authenticate(self):
-        self.__creds = None
-
-        if os.path.exists('token.json'):
-            self.__creds = GoogleCredentials.from_authorized_user_file('token.json', self.SCOPES)
-        else:
-            logging.info('token.json does not exist, creating them')
-
-        # If there are no (valid) credentials available, let the user log in.
-        if not self.__creds or not self.__creds.valid:
-            if self.__creds and self.__creds.expired and self.__creds.refresh_token:                
-                logging.error("we need to refresh our request")
-                self.__creds.refresh(Request())
-            else:                
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', self.SCOPES)
-                self.__creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open('token.json', 'w') as token:
-                token.write(self.__creds.to_json())
-        
-        return True
-
-    def get(self):
-        return self.__creds
-
-    def authenticated(self):
-        return self.__creds is not None
-        
 
 """
 Example of a full set of fields from google drive
@@ -154,7 +110,7 @@ Example of a full set of fields from google drive
 class Drive:
     def __init__(self, credentials = None) -> None:
         if credentials is None:
-            credentials = Credentials()
+            credentials = GDriveCredentials()
 
         self.__credentials = credentials
 
@@ -179,7 +135,7 @@ class Drive:
             if "sharingUser" in file:
                 sharing_user = self.__create_user(file['sharingUser'])
 
-            doc = DocumentDetails(name, owners, id, shared, sharing_user, modified_time) 
+            doc = DocumentDetails(DocumentType.GDRIVE, name, owners, id, shared, sharing_user, modified_time) 
 
             documents.append(doc)
         
@@ -212,46 +168,3 @@ class Drive:
         except HttpError as error:
             logging.ERROR(f'An error occurred: {error}')
             return None
-
-class Document:
-    def __init__(self, credentials = None) -> None:
-        if credentials is None:
-            credentials = Credentials()
-        
-        self.__credentials = credentials
-        self.__service = build("docs", "v1", credentials=self.__credentials.get())
-
-
-    def parse_paragraph(self, element):
-        text_run = element.get('textRun')
-        if not text_run:
-            return ''
-
-        return text_run.get('content')
-
-    def parse_elements(self, elements):
-        text = ''
-        for value in elements:
-            if 'paragraph' in value:
-                elements = value.get('paragraph').get('elements')
-                for element in elements:
-                    text += self.parse_paragraph(element)
-            elif 'table' in value:
-                table = value.get('table')
-                for row in table.get('tableRows'):
-                    cells = row.get('tableCells')
-                    for cell in cells:
-                        text += self.parse_elements(cell.get('content'))
-            elif 'tableOfContents' in value:
-                toc = value.get('tableOfContents')
-                text += self.parse_elements(toc.get('content'))
-        return text
-
-    def read(self, documentID):
-        doc = self.__service.documents().get(documentId=documentID).execute()
-        contents = doc.get('body').get('content')
-        return self.parse_elements(contents)
-
-
-
-    
