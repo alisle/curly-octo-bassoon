@@ -17,7 +17,7 @@ class DocumentType:
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True, eq=True)
 class DocumentDetails:
     document_type : DocumentType
     document_name : str

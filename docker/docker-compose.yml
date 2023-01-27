@@ -23,6 +23,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
@@ -34,19 +35,20 @@ services:
       kafka-topics --bootstrap-server broker:9092 --list
 
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-entity --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-document --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-api-human --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-api-entity --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-api-company --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:9092 --create --if-not-exists --topic new-api-company-human --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker:9092 --list
       "
-  tinkerpop:
-    image: tinkerpop/gremlin-server
-    container_name: tinkerpop
+  tinkerpop-server:
+    image: tinkerpop/gremlin-server:3.5.4
+    container_name: tinkerpop-server
+    entrypoint: "/docker-entrypoint.sh  /opt/gremlin-server/conf/gremlin-server-modern.yaml"
     ports:
       - "8182:8182"
     depends_on:
       - broker
-    
