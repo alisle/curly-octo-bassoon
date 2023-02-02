@@ -9,6 +9,46 @@ from dataclasses import (MISSING,
 import logging
 from .vertex import _GremlinVertex
 from .edge import _GremlinEdge
+from collections.abc import Iterable
+
+def _gremlin_is_simple_value(value) -> bool:
+    if isinstance(value, (str, bool, int, float, complex)):
+        return True
+    
+    return False
+
+def _gremlin_parse_field(field, name, edges):
+    if isinstance(field, str):
+        logging.info(f"found string: {name}:{field}")
+        return field
+    elif isinstance(field, bool):
+        logging.info(f"found bool: {name}:{str(field)}")
+        return field
+    elif isinstance(field, (int, float, complex)):
+        logging.info(f"found number: {name}:{field}")
+        return field
+    elif issubclass(type(field), GremlinVertexMixin):
+        logging.info(f"found edge with no properties: {name}")
+        if field is not None:
+            edges.append((name, field.gremlin_get_vertex()))                    
+    elif isinstance(field, Iterable):
+        logging.info(f"found a collection: {name}")
+        if field is not None:
+            for element in field:
+                if _gremlin_is_simple_value(element): 
+                    # OK so now we have a simple element, we will need to create a node for each of these elements.
+                    logging.warn("skipping element as it's simple.")
+                    continue
+                elif issubclass(type(element), GremlinVertexMixin):
+                    logging.info(f"found edge with no properties")
+                    edges.append((name, element.gremlin_get_vertex()))                                        
+        else:
+            logging.info(f"{name} is None, skipping")
+    else:
+        logging.warn(f"unknown instance {name}:{field}")  
+
+    return None              
+
 
 class GremlinVertexMixin(abc.ABC):    
     def gremlin_get_primary_key(self):
@@ -37,17 +77,9 @@ class GremlinVertexMixin(abc.ABC):
             for field in fields(self):                
                 name = field.name
                 value = getattr(self, field.name)
-                if isinstance(value, str):
-                    logging.info(f"found string: {name}:{value}")
+                value = _gremlin_parse_field(value, name, edges)
+                if value is not None:
                     properties[name] = value
-                elif isinstance(value, (int, float, complex)):
-                    logging.info(f"found number: {name}:{str(value)}")
-                    properties[name] = value
-                elif issubclass(type(value), GremlinVertexMixin):
-                    logging.info(f"found edge with no properties: {name}")
-                    edges.append((name, value.gremlin_get_node()))                    
-                else:
-                    logging.warn(f"unknown instance {name}:{value}")                
         else:
             raise RuntimeError("Only able to process dataclasses")
 

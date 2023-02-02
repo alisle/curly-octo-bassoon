@@ -75,7 +75,7 @@ class GremlinEdgeMixin(abc.ABC):
 
 
 
-def gremlin_edge(_cls=None, *, source, sink ):
+def gremlin_edge(_cls=None, *, label, source, sink ):
     def _process_gremlin_edge(cls, label: str, source: str, sink: str):
         cls._gremlin_config = _GremlinEdgeConfig(label, source, sink)
         cls.gremlin_get_label = GremlinEdgeMixin.gremlin_get_label
@@ -90,7 +90,7 @@ def gremlin_edge(_cls=None, *, source, sink ):
         return cls
 
     def wrap(cls):
-        _process_gremlin_edge(cls, label=cls.__name__, source=source, sink=sink)
+        _process_gremlin_edge(cls, label=label, source=source, sink=sink)
         return cls 
         
 

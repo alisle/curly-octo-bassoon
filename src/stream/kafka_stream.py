@@ -7,8 +7,6 @@ import os
 
 
 class KafkaStream:
-
-
     def __init__(self) -> None:
         if os.getenv('KAFKA_SERVER') is not None:
             self.server = os.getenv('KAFKA_SERVER')

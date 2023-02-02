@@ -1,7 +1,7 @@
 from .edge import _GremlinEdge
 
 class _GremlinVertex:
-    vertex_id : int = None
+    id : int = None
     label : str
     primary_key : str
     primary_key_value : str

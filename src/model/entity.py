@@ -7,7 +7,8 @@ from typing import List
 from .api_details import APIDetails
 from .document_details import DocumentDetails
 from .human import Human
-from gremlin_model import gremlin_vertex, gremlin_edge
+from .company import Company
+from gremlin import gremlin_vertex, gremlin_edge
 
 
 
@@ -40,7 +41,7 @@ class Document(metaclass=EntityMeta):
 
 @dataclass_json
 @dataclass
-@gremlin_edge(source="human", sink="api_details")
+@gremlin_edge(label="found_in_service", source="human", sink="api_details")
 class APIHuman(metaclass=EntityMeta):  
     api_details : APIDetails
     human : Human    
@@ -52,7 +53,7 @@ class APIHuman(metaclass=EntityMeta):
 @dataclass_json
 class APICompany(metaclass=EntityMeta):
     api_details : APIDetails
-    company_name: str
+    company: Company
     entity_type: EntityType = EntityType.API_COMPANY
 
 @dataclass
@@ -65,5 +66,4 @@ class APICompanyHuman(metaclass=EntityMeta):
 
 
     
-
 
