@@ -52,10 +52,15 @@ def main():
 
     logging.debug("creating consumer for document")
     consumer = stream.create_consumer(StreamName.NEW_DOCUMENT)
+    
+    with open("possible_names.txt", "a") as possible_names:                 
+        for message in consumer:
+            document = Document.from_json(message.value)            
+            graph.insert(document.document_details)
+            possible_names.write('\n'.join(document.possible_human_keywords) + '\n')     
+            possible_names.flush()
 
-    for message in consumer:
-        document = Document.from_json(message.value)
-        graph.insert(document.document_details)        
+               
         
 
 if __name__ == '__main__':

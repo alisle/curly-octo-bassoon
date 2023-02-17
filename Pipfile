@@ -15,6 +15,9 @@ kafka-python = "*"
 hubspot-api-client = "*"
 gremlinpython = "*"
 dataclasses-json = "*"
+ngram = "*"
+unidecode = "*"
+fuzzy = "*"
 
 [dev-packages]
 pylint = "*"
