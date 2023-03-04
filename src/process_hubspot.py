@@ -46,11 +46,15 @@ def main():
     api_client = HubSpot(access_token=sdk_key)
 
     all_contacts = api_client.crm.contacts.get_all()
+    all_companies = api_client.crm.companies.get_all()
+
  
     pprint(all_contacts)
+    pprint(all_companies)
 
+    print(f"{len(all_companies)} companies found, {len(all_contacts)} contacts found")
 
-    print(json.dumps(all_contacts, sort_keys=True, indent=4))
+    #print(json.dumps(all_contacts, sort_keys=True, indent=4))
 
 if __name__ == '__main__':
     main()
